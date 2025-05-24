@@ -24,3 +24,25 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+
+# Swagger UI ??
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    tags-sorter: alpha
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+jwt:
+  secret: 9968cb787a9fe913fd1dfba6f1541381a3de7d5589fe53edba74a66e7b26e1ad
+  token-validity-in-milliseconds: 86400000 # 24??
+
+
+server:
+  port: 8080
+
+---
