@@ -1,8 +1,16 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 27f6a88c6ed98b2aa47aec1d7ff81dbadd5a2c78
 spring:
   profiles:
     active: local
   datasource:
+<<<<<<< HEAD
     url: jdbc:h2:mem:ecommerce;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+=======
+    url: jdbc:h2:mem:ecommerce;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;
+>>>>>>> 27f6a88c6ed98b2aa47aec1d7ff81dbadd5a2c78
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -37,9 +45,16 @@ springdoc:
   default-produces-media-type: application/json
 
 jwt:
+<<<<<<< HEAD
   secret: 8b329d5befe084f6dbb351fc10b9074b9fab576ec3753f54dd5f8894e08d8ec6
   token-validity-in-milliseconds: 86400000 # 24??
 
+=======
+  secret: 9968cb787a9fe913fd1dfba6f1541381a3de7d5589fe53edba74a66e7b26e1ad
+  token-validity-in-milliseconds: 86400000 # 24??
+
+
+>>>>>>> 27f6a88c6ed98b2aa47aec1d7ff81dbadd5a2c78
 server:
   port: 8080
 
