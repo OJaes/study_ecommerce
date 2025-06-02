@@ -1,4 +1,4 @@
-package com.study.ecommerce.domain.category.dto;
+package com.study.ecommerce.domain.category.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
 

@@ -1,4 +1,4 @@
-package com.study.ecommerce.domain.category.dto;
+package com.study.ecommerce.domain.category.dto.res;
 
 import java.util.List;
 

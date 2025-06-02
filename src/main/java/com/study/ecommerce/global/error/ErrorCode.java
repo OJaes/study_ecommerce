@@ -6,21 +6,12 @@ import lombok.Getter;
 public enum ErrorCode {
 
     // Common
-<<<<<<< HEAD
     INVALID_INPUT_VALUE(400, "C001", "Invalid Input Value"),
     INVALID_TYPE_VALUE(400, "C002", "Invalid Type Value"),
     ACCESS_DENIED(403, "C003", "Access is Denied"),
     RESOURCE_NOT_FOUND(404, "C004", "Resource Not Found"),
     METHOD_NOT_ALLOWED(405, "C005", "Method Not Allowed"),
     INTERNAL_SERVER_ERROR(500, "C006", "Server Error"),
-=======
-    INVALID_INPUT_VALUE(400,"C001","Invalid Input Value"),
-    INVALID_TYPE_VALUE(400,"C002","Invalid Type Value"),
-    ACCESS_DENIED(403,"C003","Access is Denied"),
-    RESOURCE_NOT_FOUND(404,"C004","Resource Not Found"),
-    METHOD_NOT_ALLOWED(405,"C005","Method Not Allowed"),
-    INTERNAL_SERVER_ERROR(500,"C006","Internal Server Error"),
->>>>>>> 27f6a88c6ed98b2aa47aec1d7ff81dbadd5a2c78
 
     // Member
     EMAIL_DUPLICATION(400, "M001", "Email is Duplicated"),
@@ -45,10 +36,6 @@ public enum ErrorCode {
     // Payment
     PAYMENT_NOT_FOUND(404, "PA001", "Payment Not Found"),
     PAYMENT_FAILED(400, "PA002", "Payment Failed");
-<<<<<<< HEAD
-=======
-    ;
->>>>>>> 27f6a88c6ed98b2aa47aec1d7ff81dbadd5a2c78
 
     private final int status;
     private final String code;

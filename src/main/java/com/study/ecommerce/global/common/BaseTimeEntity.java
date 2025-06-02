@@ -1,9 +1,5 @@
 package com.study.ecommerce.global.common;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 27f6a88c6ed98b2aa47aec1d7ff81dbadd5a2c78
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -18,16 +14,9 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
-<<<<<<< HEAD
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt; // created_at
-=======
-
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
->>>>>>> 27f6a88c6ed98b2aa47aec1d7ff81dbadd5a2c78
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
