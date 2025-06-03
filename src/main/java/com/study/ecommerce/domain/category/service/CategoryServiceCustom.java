@@ -87,18 +87,16 @@ public class CategoryServiceCustom implements CategoryService {
 
     @Override
     public CategoryResponse getCategoryById(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 카테고리입니다."));
+
         List<Category> allCategories = categoryRepository.findAll();
 
         Map<Long, List<Category>> childrenMap = allCategories.stream()
                 .filter(cat->cat.getParentId() != null)
                 .collect(Collectors.groupingBy(Category::getParentId));
 
-        Category rootCategory = allCategories.stream()
-                .filter(cat->cat.getId().equals(id))
-                .findFirst()
-                .orElseThrow(()-> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
-
-        return buildCategoryHierarchy(rootCategory, childrenMap);
+        return buildCategoryHierarchy(category, childrenMap);
     }
 
 
@@ -106,12 +104,10 @@ public class CategoryServiceCustom implements CategoryService {
     @Transactional
     public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
 
-        List<Category> allCategories = categoryRepository.findAll();
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 카테고리입니다."));
 
-        Category category = allCategories.stream()
-                .filter(cat -> cat.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 카테고리입니다."));
+        List<Category> allCategories = categoryRepository.findAll();
 
         if (id.equals(categoryRequest.parentId())) {
             throw new IllegalArgumentException("카테고리는 자기 자신을 부모로 설정할 수 없습니다.");

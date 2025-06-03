@@ -80,6 +80,11 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("상품을 찾을 수 없습니다."));
 
+        Long categoryId = product.getCategoryId();
+        if(categoryId == null) {
+            throw new EntityNotFoundException("상품과 연결된 카테고리가 없습니다.");
+        }
+
         Category category = categoryRepository.findById(product.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
 
