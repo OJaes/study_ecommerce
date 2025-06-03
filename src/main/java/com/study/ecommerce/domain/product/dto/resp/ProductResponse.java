@@ -1,4 +1,4 @@
-package com.study.ecommerce.domain.product.dto.res;
+package com.study.ecommerce.domain.product.dto.resp;
 
 import com.study.ecommerce.domain.product.entity.Product.ProductStatus;
 

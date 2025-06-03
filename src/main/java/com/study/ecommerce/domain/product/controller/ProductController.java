@@ -2,7 +2,7 @@ package com.study.ecommerce.domain.product.controller;
 
 import com.study.ecommerce.domain.product.dto.req.ProductCreateRequest;
 import com.study.ecommerce.domain.product.dto.req.ProductUpdateRequest;
-import com.study.ecommerce.domain.product.dto.res.ProductResponse;
+import com.study.ecommerce.domain.product.dto.resp.ProductResponse;
 import com.study.ecommerce.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

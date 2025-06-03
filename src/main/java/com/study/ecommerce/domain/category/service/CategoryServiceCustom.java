@@ -102,53 +102,122 @@ public class CategoryServiceCustom implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
+    public CategoryResponse updateCategory(Long id, CategoryRequest request) {
 
         Category category = categoryRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 카테고리입니다."));
+                .orElseThrow(()-> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
 
-        List<Category> allCategories = categoryRepository.findAll();
+        if(request.parentId() != null) {
+            Category parent = categoryRepository.findById(id)
+                    .orElseThrow(()-> new EntityNotFoundException("존재하지 않는 카테고리입니다."));
 
-        if (id.equals(categoryRequest.parentId())) {
-            throw new IllegalArgumentException("카테고리는 자기 자신을 부모로 설정할 수 없습니다.");
+            Long parentId = parent.getParentId();
+            int depth = parent.getDepth() + 1;
+
+            // 자기 자신을 부모로 설정하는 경우가 없도록
+            if(parent.getId().equals(category.getId())){
+                throw new IllegalArgumentException("<UNK> <UNK> <UNK> <UNK> <UNK>.");
+            }
+
+            // 자신이 하위 카테고리를 부모로 설정하는 순환 참조 금지
+            if(isDescendant(category, parent)) {
+                throw new IllegalArgumentException("<UNK> <UNK> <UNK> <UNK>.");
+            }
+
+            category = Category.builder()
+                    .name(request.name())
+                    .depth(depth)
+                    .parentId(parentId)
+                    .build();
+
+            categoryRepository.save(category);
+
         }
+        return new CategoryResponse(
+                category.getId(),
+                category.getName(),
+                category.getDepth(),
+                category.getParentId(),
+                List.of()
+        );
 
-        category.setName(categoryRequest.name());
-        category.setParentId(categoryRequest.parentId());
 
-        Map<Long, List<Category>> childrenMap = allCategories.stream()
-                .filter(cat -> cat.getParentId() != null)
-                .collect(Collectors.groupingBy(Category::getParentId));
 
-        return buildCategoryHierarchy(category, childrenMap);
+//        List<Category> allCategories = categoryRepository.findAll();
+//
+//        if (id.equals(categoryRequest.parentId())) {
+//            throw new IllegalArgumentException("카테고리는 자기 자신을 부모로 설정할 수 없습니다.");
+//        }
+//
+//        category.setName(categoryRequest.name());
+//        category.setParentId(categoryRequest.parentId());
+//
+//        Map<Long, List<Category>> childrenMap = allCategories.stream()
+//                .filter(cat -> cat.getParentId() != null)
+//                .collect(Collectors.groupingBy(Category::getParentId));
+//
+//        return buildCategoryHierarchy(category, childrenMap);
+
     }
 
 
     @Override
     public void deleteCategory(Long id) {
-        List<Category> allCategories = categoryRepository.findAll();
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
 
-        Map<Long, List<Category>> childrenMap = allCategories.stream()
-                .filter(cat -> cat.getParentId() != null)
-                .collect(Collectors.groupingBy(Category::getParentId));
+        List<Category> children = categoryRepository.findByParentId(id);
 
-        Category root = allCategories.stream()
-                .filter(cat -> cat.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 카테고리입니다."));
+        if(!children.isEmpty()) {
+            throw new IllegalArgumentException("하위 카테고리가 있는 카테고리는 삭제할 수 없습니다.");
+        }
 
-        List<Long> toDeleteIds = new ArrayList<>();
-        collectAllDescendantIds(root.getId(), childrenMap, toDeleteIds);
-        toDeleteIds.add(root.getId());
+        Long productCount = categoryRepository.countProductsByCategory(id);
 
-        categoryRepository.deleteAllById(toDeleteIds);
+        if(productCount > 0){
+            throw new IllegalArgumentException("카테고리에 속한 상품이 있는 경우 삭제할 수 없습니다.");
+        }
+
+        categoryRepository.delete(category);
+
+//        List<Category> allCategories = categoryRepository.findAll();
+//
+//        Map<Long, List<Category>> childrenMap = allCategories.stream()
+//                .filter(cat -> cat.getParentId() != null)
+//                .collect(Collectors.groupingBy(Category::getParentId));
+//
+//        Category root = allCategories.stream()
+//                .filter(cat -> cat.getId().equals(id))
+//                .findFirst()
+//                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 카테고리입니다."));
+//
+//        List<Long> toDeleteIds = new ArrayList<>();
+//        collectAllDescendantIds(root.getId(), childrenMap, toDeleteIds);
+//        toDeleteIds.add(root.getId());
+//
+//        categoryRepository.deleteAllById(toDeleteIds);
     }
 
-    private void collectAllDescendantIds(Long parentId, Map<Long, List<Category>> childrenMap, List<Long> result) {
-        if (!childrenMap.containsKey(parentId)) return;
-        for (Category child : childrenMap.get(parentId)) {
-            result.add(child.getId());
-            collectAllDescendantIds(child.getId(), childrenMap, result);
+//    private void collectAllDescendantIds(Long parentId, Map<Long, List<Category>> childrenMap, List<Long> result) {
+//        if (!childrenMap.containsKey(parentId)) return;
+//        for (Category child : childrenMap.get(parentId)) {
+//            result.add(child.getId());
+//            collectAllDescendantIds(child.getId(), childrenMap, result);
+//        }
+//    }
+
+    private boolean isDescendant(Category ancestor, Category descendant) {
+        if(descendant.getParentId() == null) {
+            return false;
         }
+
+        if(descendant.getParentId().equals(ancestor.getId())) {
+            return true;
+        }
+
+        Category parent = categoryRepository.findById(descendant.getParentId())
+                .orElseThrow(()-> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
+
+        return isDescendant(ancestor, parent);
     }
 }

@@ -5,18 +5,25 @@ import com.study.ecommerce.domain.category.repository.CategoryRepository;
 import com.study.ecommerce.domain.member.entity.Member;
 import com.study.ecommerce.domain.member.repository.MemberRepository;
 import com.study.ecommerce.domain.product.dto.req.ProductCreateRequest;
+import com.study.ecommerce.domain.product.dto.req.ProductSearchCondition;
 import com.study.ecommerce.domain.product.dto.req.ProductUpdateRequest;
-import com.study.ecommerce.domain.product.dto.res.ProductResponse;
+import com.study.ecommerce.domain.product.dto.resp.ProductResponse;
+import com.study.ecommerce.domain.product.dto.resp.ProductSummaryDto;
 import com.study.ecommerce.domain.product.entity.Product;
 import com.study.ecommerce.domain.product.entity.Product.ProductStatus;
 import com.study.ecommerce.domain.product.repository.ProductRepository;
 import com.study.ecommerce.global.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +32,48 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final MemberRepository memberRepository;
 
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponse>getProducts(ProductSearchCondition condition, Pageable pageable) {
+        Page<ProductSummaryDto> productSummaryDtos = productRepository.searchProducts(condition, pageable);
+
+        List<Long> categoryIds = productSummaryDtos.getContent().stream()
+                .map(dto -> {
+                    Product product = productRepository.findById(dto.id())
+                            .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+                    return product.getCategoryId();
+                })
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, String> categoryMap = new HashMap<>();
+
+        if (!categoryIds.isEmpty()) {
+            List<Category> categories = categoryRepository.findAllById(categoryIds);
+            categories.forEach((category) -> {
+                categoryMap.put(category.getId(), category.getName());
+            });
+        }
+        return productSummaryDtos.map(dto -> {
+            Product product = productRepository.findById(dto.id())
+                    .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다.."));
+            String categoryName = "분류 없음";
+            if(product.getCategoryId() != null){
+               categoryName = categoryMap.getOrDefault(product.getCategoryId(), "분류없음");
+            }
+
+            return new ProductResponse(
+                    dto.id(),
+                    dto.name(),
+                    null,
+                    dto.price(),
+                    dto.stockQuantity(),
+                    dto.status(),
+                    categoryName
+            );
+        });
+    }
 
     @Transactional
     public ProductResponse createProduct(ProductCreateRequest request, String email) {
@@ -80,13 +129,24 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("상품을 찾을 수 없습니다."));
 
-        Long categoryId = product.getCategoryId();
-        if(categoryId == null) {
-            throw new EntityNotFoundException("상품과 연결된 카테고리가 없습니다.");
+        Category category = null;
+        String categoryName = "분류 없음";
+
+        if(product.getCategoryId() != null){
+            category = categoryRepository.findById(product.getCategoryId())
+                    .orElse(null);
+
+            if(category != null){
+                categoryName = category.getName();
+            }
         }
 
-        Category category = categoryRepository.findById(product.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
+
+//        Long categoryId = product.getCategoryId();
+//        if(categoryId == null) {
+//            throw new EntityNotFoundException("상품과 연결된 카테고리가 없습니다.");
+//        }
+
 
         // email로 판매자 여부 확인하는 부분이 response에 없어 일단 생략
 //        Member seller = memberRepository.findById(product.getSellerId())
@@ -113,8 +173,11 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("상품을 찾을 수 없습니다."));
 
-        Member seller = memberRepository.findById(product.getSellerId())
+        Long sellerId = product.getSellerId();
+
+        Member seller = memberRepository.findById(sellerId)
                 .orElseThrow(() -> new EntityNotFoundException("판매자를 찾을 수 없습니다."));
+
         if(!seller.getEmail().equals(request.memberEmail())) {
             throw new AccessDeniedException("권한이 없습니다.");
         }
@@ -124,7 +187,7 @@ public class ProductService {
 
         ProductStatus status;
         try{
-            status = ProductStatus.valueOf(request.status());
+            status = request.status();
         }catch (IllegalArgumentException e){
             throw new IllegalArgumentException("유효하지 않은 상태입니다.");
         }
@@ -135,7 +198,7 @@ public class ProductService {
                 request.description(),
                 request.price(),
                 request.stockQuantity(),
-                ProductStatus.valueOf(request.status()),
+                request.status(),
                 category.getId()
         );
 
