@@ -87,7 +87,7 @@ public class ProductQueryRepositoryCustom implements ProductQueryRepository{
                         product.price,
                         product.stockQuantity,
                         // 카테고리 이름 대신 상수값을 변환
-//                        Expressions.asString("Category").as("categoryName"),
+//                        Expressions.asString("Category").as("categoryName"), 기존
                         JPAExpressions
                                 .select(category.name)
                                 .from(category)
