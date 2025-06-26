@@ -2,11 +2,13 @@ package com.study.ecommerce.domain.category.entity;
 
 import com.study.ecommerce.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category extends BaseTimeEntity {
 

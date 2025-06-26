@@ -1,20 +1,16 @@
 package com.study.ecommerce.domain.product.entity;
 
 import com.study.ecommerce.global.common.BaseTimeEntity;
-import com.study.ecommerce.global.error.ErrorCode;
-import com.study.ecommerce.global.error.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class             Product extends BaseTimeEntity {
+public class Product extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +26,7 @@ public class             Product extends BaseTimeEntity {
     private Long price;
 
     @Column(nullable = false)
-    private int stockQuantity;
+    private Integer stockQuantity;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
@@ -42,7 +38,10 @@ public class             Product extends BaseTimeEntity {
     private Long categoryId;
 
     @Builder
-    public Product(String name, String description, Long price, int stockQuantity, ProductStatus status, Long sellerId, Long categoryId) {
+    public Product(String name, String description,
+                   Long price, Integer stockQuantity,
+                   ProductStatus status, Long sellerId,
+                   Long categoryId) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -56,38 +55,36 @@ public class             Product extends BaseTimeEntity {
         ACTIVE, SOLD_OUT, DELETED
     }
 
-
-
-// businessMethod
-    // decreaseStock(int quantity)
-    // 에러가 터져야 하는 부분?
-    // 상태 변경 -> sold_out (if)
-
-    public void decreasesStock(int quantity){
+    // 비지니스 메소드
+    // decreasesStock(int quantity)
+    // 에러를터트려야하는 부분 if -> error
+    // 상태변경 -> SOLD_OUT -> if
+    public void decreasesStock(int quantity) {
         int restStock = this.stockQuantity - quantity;
-        if(restStock < 0) {
+        if (restStock < 0) {
             throw new IllegalArgumentException("재고가 부족합니다.");
         }
 
-        this.stockQuantity -= restStock;
-        if(this.stockQuantity == 0){
+        this.stockQuantity = restStock;
+        if (this.stockQuantity == 0) {
             this.status = ProductStatus.SOLD_OUT;
         }
     }
 
-    // increaseStock(int quantity)
-    // 에러가 터져야 하는 부분
-
+    // increasesStock(int quantity) -> 증가
     public void increasesStock(int quantity) {
         this.stockQuantity += quantity;
-        if(this.stockQuantity > 0 && this.status == ProductStatus.SOLD_OUT){
+
+        if (this.stockQuantity > 0 && this.status == ProductStatus.SOLD_OUT) {
             this.status = ProductStatus.ACTIVE;
         }
     }
 
-    // update -> 전체 seller id는 바뀔 수 없다
-
-    public void update(String name, String description, Long price, int stockQuantity, ProductStatus status, Long categoryId) {
+    // update -> 전체 셀러아이디는 바뀔수가없다 생각하고
+    public void update(String name, String description,
+                       Long price, Integer stockQuantity,
+                       ProductStatus status,
+                       Long categoryId) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -95,9 +92,9 @@ public class             Product extends BaseTimeEntity {
         this.status = status;
         this.categoryId = categoryId;
     }
+    // delete -> soft delete 상태를 변경
 
-    // delete -> soft delete (상태 변경)
     public void delete() {
-        status = ProductStatus.DELETED;
+        this.status = ProductStatus.DELETED;
     }
 }

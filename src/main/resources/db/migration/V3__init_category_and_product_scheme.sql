@@ -1,5 +1,4 @@
 CREATE TABLE category (
-
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     depth INT,
@@ -17,6 +16,6 @@ CREATE TABLE product (
     status VARCHAR(20) NOT NULL,
     seller_id BIGINT,
     category_id BIGINT,
-    updated_at TIMESTAMP,
-    created_at TIMESTAMP
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
 );

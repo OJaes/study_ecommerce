@@ -9,4 +9,4 @@ FROM products p
 WHERE p.status = 'ACTIVE'
 AND (p.name LIKE %keyword% OR p.description LIKE %keyword%)
 AND p.categoryId = categoryId
-AND p.minPrice >= min_price
+AND p.min_price >= minPrice

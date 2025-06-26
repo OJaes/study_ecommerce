@@ -1,15 +1,11 @@
 package com.study.ecommerce.domain.product.dto.req;
 
-import com.study.ecommerce.domain.product.entity.Product;
+import com.study.ecommerce.domain.product.entity.Product.ProductStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-
-public record ProductUpdateRequest (
-        @NotBlank
-        String memberEmail,
-
+public record ProductUpdateRequest(
         @NotBlank(message = "상품명은 필수입니다.")
         String name,
 
@@ -24,8 +20,9 @@ public record ProductUpdateRequest (
         Integer stockQuantity,
 
         @NotNull(message = "상태는 필수입니다.")
-        Product.ProductStatus status,
+        ProductStatus status,
 
         @NotNull(message = "카테고리는 필수입니다.")
         Long categoryId
-){ }
+) {
+}

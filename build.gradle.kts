@@ -33,6 +33,10 @@ dependencies {
 	// database
 	implementation("org.flywaydb:flyway-core")
 	runtimeOnly("com.h2database:h2")
+	runtimeOnly("com.mysql:mysql-connector-j")
+	runtimeOnly("org.postgresql:postgresql")
+	implementation("org.flywaydb:flyway-mysql")
+	implementation("org.flywaydb:flyway-database-postgresql")
 
 	// swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
@@ -64,14 +68,14 @@ tasks.withType<JavaCompile>().configureEach {
 	options.generatedSourceOutputDirectory.set(file(querydslGeneratedDir))
 }
 
-sourceSets{
+sourceSets {
 	main {
 		java.srcDir(querydslGeneratedDir)
 	}
 }
 
-tasks.named("clean"){
-	doLast{
+tasks.named("clean") {
+	doLast {
 		file(querydslGeneratedDir).deleteRecursively()
 	}
 }

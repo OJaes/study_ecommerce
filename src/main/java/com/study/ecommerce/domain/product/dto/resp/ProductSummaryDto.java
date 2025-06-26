@@ -10,5 +10,4 @@ public record ProductSummaryDto(
         String categoryName,
         ProductStatus status
 ) {
-
 }
