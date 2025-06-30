@@ -31,10 +31,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> , Produc
 
     Optional<Product> findByIdAndStatus(Long id, ProductStatus productStatus);
 
-    Page<Product> findByNameContainingAndStatus(String name, ProductStatus status, Pageable pageable);
+    Page<Product> findByNameContainingIgnoreCaseAndStatus(String keyword, ProductStatus productStatus, Pageable pageable);
 
-    Page<Product> findByPriceBetweenAndStatus(Long minPrice, Long maxPrice, ProductStatus status, Pageable pageable);
+    Page<Product> findByPriceBetweenAndStatus(Long minPrice, Long maxPrice, ProductStatus productStatus, Pageable pageable);
 
-    Page<Product> findByCategoryIdAndNameContainingAndStatus(Long categoryId, String name, ProductStatus status, Pageable pageable);
-
+    Page<Product> findByCategoryIdAndNameContainingIgnoreCaseAndStatus(Long categoryId, String keyword, ProductStatus productStatus, Pageable pageable);
 }
