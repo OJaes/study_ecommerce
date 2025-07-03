@@ -1,5 +1,7 @@
 package com.study.ecommerce.domain.payment.dto;
 
+import lombok.Getter;
+
 public record PaymentRequest(
         String orderId,
         int amount,

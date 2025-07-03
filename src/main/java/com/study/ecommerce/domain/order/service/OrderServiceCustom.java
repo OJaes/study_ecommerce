@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class OrderServiceCustom implements OrderService {
                 .memberId(member.getId())
                 .status(CREATED)
                 .orderDate(LocalDateTime.now())
-                .totalAmount(0L)
+                .totalAmount(BigDecimal.valueOf(0L))
                 .build();
 
         order = orderRepository.save(order);
@@ -76,7 +77,7 @@ public class OrderServiceCustom implements OrderService {
         }
 
         // 4. 총액 업데이트
-        order.updateTotalAmount(totalAmount);
+        order.updateTotalAmount(BigDecimal.valueOf(totalAmount));
         order = orderRepository.save(order);
 
         // 5. 결제 진행 (비동기로 처리해도됩니다)
@@ -86,7 +87,7 @@ public class OrderServiceCustom implements OrderService {
             orderRepository.save(order);
         }
 
-        return new OrderResponse(order.getId(), order.getStatus(), order.getTotalAmount());
+        return new OrderResponse(order.getId(), order.getStatus(), order.getTotalAmount().longValue());
     }
 
     @Override
@@ -117,7 +118,7 @@ public class OrderServiceCustom implements OrderService {
 
             List<OrderItem> orderItems = orderItemRepository.findByOrderId(order.getId());
             for (OrderItem item : orderItems) {
-                Product product = productRepository.findById(item.getProductId())
+                Product product = productRepository.findById(item.getProduct().getId())
                         .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
 
                 product.increasesStock(item.getQuantity());
@@ -130,7 +131,7 @@ public class OrderServiceCustom implements OrderService {
 
         orderRepository.save(order);
 
-        return new OrderResponse(order.getId(), order.getStatus(), order.getTotalAmount());
+        return new OrderResponse(order.getId(), order.getStatus(), order.getTotalAmount().longValue());
     }
 
     @Override
@@ -152,13 +153,13 @@ public class OrderServiceCustom implements OrderService {
         List<OrderItem> orderItems = orderItemRepository.findByOrderId(order.getId());
         List<OrderItemDto> orderItemDtos = orderItems.stream()
                 .map(item -> {
-                    Product product = productRepository.findById(item.getProductId())
+                    Product product = productRepository.findById(item.getProduct().getId())
                             .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
                     return new OrderItemDto(
                             product.getId(),
                             product.getName(),
                             item.getQuantity(),
-                            item.getPrice()
+                            item.getPrice().longValue()
                     );
                 })
                 .toList();
@@ -169,7 +170,7 @@ public class OrderServiceCustom implements OrderService {
                 member.getName(),
                 order.getStatus(),
                 order.getOrderDate(),
-                order.getTotalAmount(),
+                order.getTotalAmount().longValue(),
                 orderItemDtos
         );
     }
@@ -181,7 +182,7 @@ public class OrderServiceCustom implements OrderService {
 
         Page<Order>orders = orderRepository.findByMemberId(member.getId(), pageable);
 
-        return orders.map(order -> new OrderResponse(order.getId(), order.getStatus(), order.getTotalAmount()));
+        return orders.map(order -> new OrderResponse(order.getId(), order.getStatus(), order.getTotalAmount().longValue()));
     }
 
     private long processCartItems(Order order, List<Long> cartItemIds, Member member) {
@@ -207,14 +208,14 @@ public class OrderServiceCustom implements OrderService {
 
             // 주문 상품 추가
             OrderItem orderItem = OrderItem.builder()
-                    .orderId(order.getId())
-                    .productId(product.getId())
+                    .order(order)
+                    .product(product)
                     .quantity(cartItem.getQuantity())
-                    .price(product.getPrice())
+                    .price(BigDecimal.valueOf(product.getPrice()))
                     .build();
 
             orderItemRepository.save(orderItem);
-            totalAmount += orderItem.getTotalPrice();
+            totalAmount += orderItem.getTotalPrice().longValue();
 
             // 주문한 상품은 장바구니에서 제거
             cartItemRepository.delete(cartItem);
@@ -234,14 +235,14 @@ public class OrderServiceCustom implements OrderService {
             productRepository.save(product);
 
             OrderItem orderItem = OrderItem.builder()
-                    .orderId(order.getId())
-                    .productId(product.getId())
+                    .order(order)
+                    .product(product)
                     .quantity(request.getQuantity())
-                    .price(product.getPrice())
+                    .price(BigDecimal.valueOf(product.getPrice()))
                     .build();
 
             orderItemRepository.save(orderItem);
-            totalAmount += orderItem.getTotalPrice();
+            totalAmount += orderItem.getTotalPrice().longValue();
         }
         return totalAmount;
     }

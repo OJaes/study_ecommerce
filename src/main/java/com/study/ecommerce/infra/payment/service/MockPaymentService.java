@@ -26,7 +26,7 @@ public class MockPaymentService {
                 .orderId(order.getId())
                 .paymentMethod(paymentMethod)
                 .status(PENDING)
-                .amount(order.getTotalAmount())
+                .amount(order.getTotalAmount().longValue())
                 .build();
 
         paymentRepository.save(payment);
