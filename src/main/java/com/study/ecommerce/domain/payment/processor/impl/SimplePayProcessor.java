@@ -40,29 +40,31 @@ public class SimplePayProcessor implements PaymentProcessor {
                     .build();
         }
 
-        int fee = calculateFee(request.amount());
-        String transactionId = UUID.randomUUID().toString();
+        // 실제 간편결제 처리
+        String transactionId = request.simplePayProvider() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        int feeAmount = calculateFee(request.amount());
 
-        log.info("은행 이체 성공 - 주문 ID: {}, 수수료: {}", request.orderId(), fee);
+        log.info("은행 이체 성공 - 주문 ID: {}, 수수료: {}", request.orderId(), feeAmount);
 
         return PaymentResult.builder()
                 .success(true)
                 .transactionId(transactionId)
-                .message("결제 성공")
+                .message(request.simplePayProvider() + " 결제가 완료되었습니다.")
                 .paidAmount(request.amount())
-                .feeAmount(fee)
-                .paymentMethod(request.paymentMethod())
+                .feeAmount(feeAmount)
+                .paymentMethod("SIMPLE_PAY")
                 .build();
     }
 
     @Override
     public int calculateFee(int amount) {
-        return (int) Math.ceil(amount * FEE_RATE);
+        return (int) (amount * FEE_RATE);
     }
 
     @Override
     public boolean supports(String paymentMethod) {
-        return "SIMPLE_PAY".equalsIgnoreCase(paymentMethod);
+//        return "SIMPLE_PAY".equalsIgnoreCase(paymentMethod);
+        return "SIMPLE_PAY".equals(paymentMethod);
     }
 
     @Override

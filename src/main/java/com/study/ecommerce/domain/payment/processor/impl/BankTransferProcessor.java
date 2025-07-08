@@ -19,25 +19,6 @@ public class BankTransferProcessor implements PaymentProcessor {
         log.info("은행 이체 처리 시작 - 주문 ID: {}, 금액: {}, 계좌번호: {}",
                 request.orderId(), request.amount(), request.accountNumber());
 
-        if (!supports(request.paymentMethod())) {
-            log.warn("지원하지 않는 결제 수단: {}", request.paymentMethod());
-            return PaymentResult.builder()
-                    .success(false)
-                    .message("지원하지 않는 결제 수단입니다.")
-                    .paymentMethod("BANK")
-                    .build();
-        }
-
-
-        if (request.amount() > MAX_AMOUNT) {
-            log.warn("결제 금액 초과: {} > 최대 허용 금액 {}", request.amount(), MAX_AMOUNT);
-            return PaymentResult.builder()
-                    .success(false)
-                    .message("최대 금액 초과입니다.")
-                    .paymentMethod("BANK")
-                    .build();
-        }
-
         if (!isValidAccount(request.accountNumber())) {
             log.warn("유효하지 않은 계좌번호: {}", request.accountNumber());
             return PaymentResult.builder()
@@ -47,35 +28,52 @@ public class BankTransferProcessor implements PaymentProcessor {
 
         }
 
-        int fee = calculateFee(request.amount());
-        String transactionId = UUID.randomUUID().toString();
+        if (request.amount() > MAX_AMOUNT) {
+            log.warn("결제 금액 초과: {} > 최대 허용 금액 {}", request.amount(), MAX_AMOUNT);
+            return PaymentResult.builder()
+                    .success(false)
+                    .message("최대 금액 초과입니다.")
+                    .paymentMethod("BANK")
+                    .build();
+        }
+//
+//        if (!supports(request.paymentMethod())) {
+//            log.warn("지원하지 않는 결제 수단: {}", request.paymentMethod());
+//            return PaymentResult.builder()
+//                    .success(false)
+//                    .message("지원하지 않는 결제 수단입니다.")
+//                    .paymentMethod("BANK")
+//                    .build();
+//        }
+
+        // 계좌이체
+        String transactionId = "BT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        int feeAmount = calculateFee(request.amount());
 
         log.info("은행 이체 성공 - 주문 ID: {}, 수수료: {}", request.orderId(), FIXED_FEE);
         return PaymentResult.builder()
                 .success(true)
                 .transactionId(transactionId)
-                .paymentMethod("BANK")
-                .message("은행 이체에 성공했습니다.")
-                .feeAmount(FIXED_FEE)
-                .paidAmount(request.amount())
+                .message("계좌이체 완료되었습니다.")
+                .feeAmount(feeAmount)
+                .paymentMethod("BANK_TRANSFER")
                 .build();
     }
 
 
     @Override
     public int calculateFee(int amount) {
-
         return FIXED_FEE;
     }
 
     @Override
     public boolean supports(String paymentMethod) {
-        return "BANK_TRANSFER".equalsIgnoreCase(paymentMethod);
+//        return "BANK_TRANSFER".equalsIgnoreCase(paymentMethod);
+        return "BANK_TRANSFER".equals(paymentMethod);
     }
 
     @Override
     public int getMaxAmount() {
-
         return MAX_AMOUNT;
     }
 
@@ -83,7 +81,6 @@ public class BankTransferProcessor implements PaymentProcessor {
     private boolean isValidAccount(String accountNumber) {
         return accountNumber != null
                 && accountNumber.length() >= 10
-                && accountNumber.length() <= 14
-                && accountNumber.chars().allMatch(Character::isDigit);
+                && accountNumber.length() <= 14;
     }
 }
