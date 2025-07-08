@@ -1,12 +1,20 @@
 package com.study.ecommerce.domain.order.validation;
 
+import com.study.ecommerce.domain.member.service.command.MemberCommandService;
+import com.study.ecommerce.domain.member.service.query.MemberQueryService;
 import com.study.ecommerce.domain.order.dto.OrderCreateRequest;
+import com.study.ecommerce.domain.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class MemberValidationHandler extends OrderValidationHandler{
+
+    private MemberQueryService memberQueryService;
+    private MemberCommandService memberCommandService;
+    private OrderService orderService;
+
 
     @Override
     protected void doValidate(OrderCreateRequest request) {
@@ -20,7 +28,7 @@ public class MemberValidationHandler extends OrderValidationHandler{
 
     private boolean isMemberExists(Long memberId) {
         // memberService -> existsById(memberId)
-        return true;
+        return memberQueryService.existsById(memberId);
     }
 
     private boolean isMemberActive(Long memberId) {

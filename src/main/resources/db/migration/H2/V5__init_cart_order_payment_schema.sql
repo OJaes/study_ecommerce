@@ -22,7 +22,7 @@ CREATE TABLE orders (
     member_id BIGINT NOT NULL,
     status VARCHAR(20) NOT NULL,
     order_date TIMESTAMP NOT NULL,
-    total_amount BIGINT,
+    total_amount DECIMAL,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES member(id)
@@ -33,7 +33,7 @@ CREATE TABLE order_item (
     order_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
     quantity INT NOT NULL,
-    price BIGINT NOT NULL,
+    price DECIMAL NOT NULL,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id),

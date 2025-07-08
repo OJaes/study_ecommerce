@@ -15,7 +15,7 @@ public class PaymentValidationHandler extends OrderValidationHandler{
     protected void doValidate(OrderCreateRequest request) {
         // 결제방법 검증
         // 지원하는 결제 방법인지 검증
-
+        validatePaymentMethodSpecific(request, MINIMUM_ORDER_AMOUNT);
         // 주문 총액 계산
 
         // 최소 주문 금액 검증
@@ -47,6 +47,7 @@ public class PaymentValidationHandler extends OrderValidationHandler{
 
     private void validateVirtualAccountPayment(OrderCreateRequest request, BigDecimal totalAmount) {
         // 로그
+        log.info(request.toString());
     }
 
     private void validateCardPayment(OrderCreateRequest request, BigDecimal totalAmount) {

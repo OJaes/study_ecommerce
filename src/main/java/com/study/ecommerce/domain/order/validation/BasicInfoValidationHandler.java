@@ -40,7 +40,7 @@ public class BasicInfoValidationHandler extends OrderValidationHandler{
 
     @Override
     protected String getHandlerName() {
-        return "기본정보검증";
+        return "기본 정보 검증";
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {

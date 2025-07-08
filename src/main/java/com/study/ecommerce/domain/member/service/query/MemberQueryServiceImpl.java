@@ -16,21 +16,21 @@ public class MemberQueryServiceImpl implements MemberQueryService{
 
     @Override
     public Optional<Member> findById(Long memberId) {
-        return Optional.empty();
+        return memberRepository.findById(memberId);
     }
 
     @Override
     public Optional<Member> findByEmail(String email) {
-        return Optional.empty();
+        return memberRepository.findByEmail(email);
     }
 
     @Override
     public boolean existsById(Long memberId) {
-        return false;
+        return memberRepository.existsById(memberId);
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return false;
+        return memberRepository.existsByEmail(email);
     }
 }

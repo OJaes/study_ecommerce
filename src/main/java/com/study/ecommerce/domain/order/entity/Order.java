@@ -29,8 +29,8 @@ public class Order extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @Enumerated(EnumType.STRING)
-    private ShippingType shippingType;
+//    @Enumerated(EnumType.STRING)
+//    private ShippingType shippingType;
 
     private LocalDateTime orderDate;
 

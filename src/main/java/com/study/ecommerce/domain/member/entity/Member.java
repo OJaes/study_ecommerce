@@ -45,4 +45,8 @@ public class Member extends BaseTimeEntity {
     public enum Role {
         CUSTOMER, SELLER, ADMIN
     }
+
+    public void updateName(String name){
+        this.name = name;
+    }
 }
