@@ -10,11 +10,9 @@ public interface CartQueryService {
 
     Optional<Cart> findByMemberId(Long memberId);
 
-    Optional<Cart> findById(Long cartItemId);
+    Optional<CartItem> findById(Long cartItemId);
 
     List<CartItem> findByCartId(Long cartId);
 
     boolean existsByMemberId(Long memberId);
-
-
 }

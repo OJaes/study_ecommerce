@@ -59,8 +59,8 @@ public class CartCommandServiceImpl implements CartCommandService {
     @Override
     public void clearCart(Long cartId) {
         // findByCartId list
-        List<CartItem> cart = cartItemRepository.findByCartId(cartId);
+        List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
         // list 전체 삭제
-        cart.clear();
+        cartItemRepository.deleteAll(cartItems);
     }
 }

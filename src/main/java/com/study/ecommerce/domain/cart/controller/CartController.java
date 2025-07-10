@@ -3,6 +3,7 @@ package com.study.ecommerce.domain.cart.controller;
 import com.study.ecommerce.domain.cart.dto.CartItemRequest;
 import com.study.ecommerce.domain.cart.dto.CartItemResponse;
 import com.study.ecommerce.domain.cart.dto.CartResponse;
+import com.study.ecommerce.domain.cart.facade.CartFacadeService;
 import com.study.ecommerce.domain.cart.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
 public class CartController {
-    private final CartService cartService;
+    private final CartFacadeService cartService;
 
     @GetMapping
     public ResponseEntity<CartResponse> getCart(@AuthenticationPrincipal UserDetails userDetails) {
@@ -28,7 +29,7 @@ public class CartController {
     public ResponseEntity<CartItemResponse> addCartItem(
             @Valid @RequestBody CartItemRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        CartItemResponse response = cartService.addCartItem(request, userDetails.getUsername());
+        CartItemResponse response = cartService.addItemToCart(userDetails.getUsername(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -37,7 +38,7 @@ public class CartController {
             @PathVariable Long cartItemId,
             @Valid @RequestBody CartItemRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        CartItemResponse response = cartService.updateCartItem(cartItemId, request, userDetails.getUsername());
+        CartItemResponse response = cartService.updateCartItemQuantity(userDetails.getUsername(), cartItemId, request.quantity());
         return ResponseEntity.ok(response);
     }
 
@@ -45,7 +46,7 @@ public class CartController {
     public ResponseEntity<Void> removeCartItem(
             @PathVariable Long cartItemId,
             @AuthenticationPrincipal UserDetails userDetails) {
-        cartService.removeCartItem(cartItemId, userDetails.getUsername());
+        cartService.removeCartItem(userDetails.getUsername(), cartItemId);
         return ResponseEntity.noContent().build();
     }
 }

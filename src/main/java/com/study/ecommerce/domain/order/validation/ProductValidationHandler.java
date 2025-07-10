@@ -25,14 +25,21 @@ public class ProductValidationHandler extends OrderValidationHandler{
 
     private void validateOrderItem(OrderItemRequest orderItem) {
         // 상품 id 검증(db) ->
-        validateProductId(orderItem);
+        // 상품 존재 여부 검증 (실제로는 DB 참조)
+        if(!validateProductId(orderItem)){
+            fail("존재하지 않는 상품입니다.");
+        }
+        Product product = productRepository.findById(orderItem.getProductId())
+                .orElseThrow(IllegalArgumentException::new);
         // 수량 검증(db) ->
-        validateProductQuantity(orderItem);
         // 최대 주문 수량 검증
+        if(!validateProductQuantity(orderItem, product)){
+            fail("수량이 충분하지 않습니다.");
+        };
 
         // 상품 가격 검증
 
-        // 상품 존재 여부 검증 (실제로는 DB 참조)
+
 
         // 상품 판매 가능 여부 검증 (db)
     }
@@ -41,15 +48,18 @@ public class ProductValidationHandler extends OrderValidationHandler{
         return productRepository.existsById(orderItem.getProductId());
     }
 
-    private boolean validateProductQuantity(OrderItemRequest orderItem) {
-        Product product = productRepository.findById(orderItem.getProductId())
-                .orElseThrow(IllegalArgumentException::new);
+    private boolean validateProductQuantity(OrderItemRequest orderItem, Product product) {
         return (product.getStockQuantity() >= orderItem.getQuantity() && product.getStockQuantity() >= 0);
     }
 
+    private boolean validateProductPrice(OrderItemRequest orderItem){
+
+
+    }
 
     @Override
     protected String getHandlerName() {
+
         return "상품검증핸들러";
     }
 
